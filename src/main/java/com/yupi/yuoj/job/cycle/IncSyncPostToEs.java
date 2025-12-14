@@ -2,7 +2,7 @@ package com.yupi.yuoj.job.cycle;
 
 import com.yupi.yuoj.esdao.PostEsDao;
 import com.yupi.yuoj.mapper.PostMapper;
-import com.yupi.yuoj.model.dto.post.PostEsDTO;
+import com.yupi.yuoj.model.dto.question.PostEsDTO;
 import com.yupi.yuoj.model.entity.Post;
 import java.util.Date;
 import java.util.List;

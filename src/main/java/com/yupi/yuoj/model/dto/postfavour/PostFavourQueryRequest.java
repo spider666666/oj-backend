@@ -1,7 +1,7 @@
 package com.yupi.yuoj.model.dto.postfavour;
 
 import com.yupi.yuoj.common.PageRequest;
-import com.yupi.yuoj.model.dto.post.PostQueryRequest;
+import com.yupi.yuoj.model.dto.question.QuestionQueryRequest;
 import java.io.Serializable;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
@@ -19,7 +19,7 @@ public class PostFavourQueryRequest extends PageRequest implements Serializable 
     /**
      * 帖子查询请求
      */
-    private PostQueryRequest postQueryRequest;
+    private QuestionQueryRequest postQueryRequest;
 
     /**
      * 用户 id

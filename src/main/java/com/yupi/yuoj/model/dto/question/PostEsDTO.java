@@ -1,4 +1,4 @@
-package com.yupi.yuoj.model.dto.post;
+package com.yupi.yuoj.model.dto.question;
 
 import cn.hutool.core.collection.CollUtil;
 import cn.hutool.json.JSONUtil;

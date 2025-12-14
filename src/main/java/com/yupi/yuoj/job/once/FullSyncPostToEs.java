@@ -1,7 +1,7 @@
 package com.yupi.yuoj.job.once;
 
 import com.yupi.yuoj.esdao.PostEsDao;
-import com.yupi.yuoj.model.dto.post.PostEsDTO;
+import com.yupi.yuoj.model.dto.question.PostEsDTO;
 import com.yupi.yuoj.model.entity.Post;
 import com.yupi.yuoj.service.PostService;
 import java.util.List;

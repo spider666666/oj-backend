@@ -1,7 +1,10 @@
-package com.yupi.yuoj.model.dto.post;
+package com.yupi.yuoj.model.dto.question;
 
+import com.baomidou.mybatisplus.annotation.IdType;
+import com.baomidou.mybatisplus.annotation.TableId;
 import com.yupi.yuoj.common.PageRequest;
 import java.io.Serializable;
+import java.util.Date;
 import java.util.List;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
@@ -14,22 +17,13 @@ import lombok.EqualsAndHashCode;
  */
 @EqualsAndHashCode(callSuper = true)
 @Data
-public class PostQueryRequest extends PageRequest implements Serializable {
+public class QuestionQueryRequest extends PageRequest implements Serializable {
 
     /**
      * id
      */
+    @TableId(type = IdType.AUTO)
     private Long id;
-
-    /**
-     * id
-     */
-    private Long notId;
-
-    /**
-     * 搜索词
-     */
-    private String searchText;
 
     /**
      * 标题
@@ -42,24 +36,12 @@ public class PostQueryRequest extends PageRequest implements Serializable {
     private String content;
 
     /**
-     * 标签列表
+     * 标签列表（json 数组）//对于题型进行一个标识
      */
-    private List<String> tags;
+    private String tags;
 
     /**
-     * 至少有一个标签
+     * 标准答案
      */
-    private List<String> orTags;
-
-    /**
-     * 创建用户 id
-     */
-    private Long userId;
-
-    /**
-     * 收藏用户 id
-     */
-    private Long favourUserId;
-
-    private static final long serialVersionUID = 1L;
+    private String answer;
 }

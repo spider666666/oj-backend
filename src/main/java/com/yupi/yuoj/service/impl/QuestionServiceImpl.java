@@ -1,5 +1,6 @@
 package com.yupi.yuoj.service.impl;
 
+import cn.hutool.core.collection.CollUtil;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
@@ -7,30 +8,20 @@ import com.yupi.yuoj.common.ErrorCode;
 import com.yupi.yuoj.constant.CommonConstant;
 import com.yupi.yuoj.exception.BusinessException;
 import com.yupi.yuoj.exception.ThrowUtils;
-import com.yupi.yuoj.mapper.PostFavourMapper;
-import com.yupi.yuoj.mapper.PostMapper;
-import com.yupi.yuoj.mapper.PostThumbMapper;
-import com.yupi.yuoj.model.dto.question.PostEsDTO;
+import com.yupi.yuoj.mapper.QuestionFavourMapper;
+import com.yupi.yuoj.mapper.QuestionMapper;
+import com.yupi.yuoj.mapper.QuestionThumbMapper;
+import com.yupi.yuoj.model.dto.question.QuestionEsDTO;
 import com.yupi.yuoj.model.dto.question.QuestionQueryRequest;
-import com.yupi.yuoj.model.entity.Post;
-import com.yupi.yuoj.model.entity.PostFavour;
-import com.yupi.yuoj.model.entity.PostThumb;
+import com.yupi.yuoj.model.entity.Question;
+import com.yupi.yuoj.model.entity.QuestionFavour;
+import com.yupi.yuoj.model.entity.QuestionThumb;
 import com.yupi.yuoj.model.entity.User;
-import com.yupi.yuoj.model.vo.PostVO;
+import com.yupi.yuoj.model.vo.QuestionVO;
 import com.yupi.yuoj.model.vo.UserVO;
-import com.yupi.yuoj.service.PostService;
+import com.yupi.yuoj.service.QuestionService;
 import com.yupi.yuoj.service.UserService;
 import com.yupi.yuoj.utils.SqlUtils;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-import java.util.stream.Collectors;
-import javax.annotation.Resource;
-import javax.servlet.http.HttpServletRequest;
-import lombok.extern.slf4j.Slf4j;
-import cn.hutool.core.collection.CollUtil;
 import org.apache.commons.lang3.ObjectUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.elasticsearch.index.query.BoolQueryBuilder;
@@ -46,36 +37,40 @@ import org.springframework.data.elasticsearch.core.query.NativeSearchQuery;
 import org.springframework.data.elasticsearch.core.query.NativeSearchQueryBuilder;
 import org.springframework.stereotype.Service;
 
+import javax.annotation.Resource;
+import javax.servlet.http.HttpServletRequest;
+import java.util.*;
+import java.util.stream.Collectors;
+
 /**
- * 帖子服务实现
- *
- * @author <a href="https://github.com/liyupi">程序员鱼皮</a>
- * @from <a href="https://yupi.icu">编程导航知识星球</a>
- */
+* @author Administrator
+* @description 针对表【question(题目)】的数据库操作Service实现
+* @createDate 2025-12-15 02:05:21
+*/
 @Service
-@Slf4j
-public class PostServiceImpl extends ServiceImpl<PostMapper, Post> implements PostService {
+public class QuestionServiceImpl extends ServiceImpl<QuestionMapper, Question>
+    implements QuestionService {
 
     @Resource
     private UserService userService;
 
     @Resource
-    private PostThumbMapper postThumbMapper;
+    private QuestionThumbMapper questionThumbMapper;
 
     @Resource
-    private PostFavourMapper postFavourMapper;
+    private QuestionFavourMapper questionFavourMapper;
 
     @Resource
     private ElasticsearchRestTemplate elasticsearchRestTemplate;
 
     @Override
-    public void validPost(Post post, boolean add) {
-        if (post == null) {
+    public void validQuestion(Question question, boolean add) {
+        if (question == null) {
             throw new BusinessException(ErrorCode.PARAMS_ERROR);
         }
-        String title = post.getTitle();
-        String content = post.getContent();
-        String tags = post.getTags();
+        String title = question.getTitle();
+        String content = question.getContent();
+        String tags = question.getTags();
         // 创建时，参数不能为空
         if (add) {
             ThrowUtils.throwIf(StringUtils.isAnyBlank(title, content, tags), ErrorCode.PARAMS_ERROR);
@@ -92,24 +87,24 @@ public class PostServiceImpl extends ServiceImpl<PostMapper, Post> implements Po
     /**
      * 获取查询包装类
      *
-     * @param postQueryRequest
+     * @param questionQueryRequest
      * @return
      */
     @Override
-    public QueryWrapper<Post> getQueryWrapper(QuestionQueryRequest postQueryRequest) {
-        QueryWrapper<Post> queryWrapper = new QueryWrapper<>();
-        if (postQueryRequest == null) {
+    public QueryWrapper<Question> getQueryWrapper(QuestionQueryRequest questionQueryRequest) {
+        QueryWrapper<Question> queryWrapper = new QueryWrapper<>();
+        if (questionQueryRequest == null) {
             return queryWrapper;
         }
-        String searchText = postQueryRequest.getSearchText();
-        String sortField = postQueryRequest.getSortField();
-        String sortOrder = postQueryRequest.getSortOrder();
-        Long id = postQueryRequest.getId();
-        String title = postQueryRequest.getTitle();
-        String content = postQueryRequest.getContent();
-        List<String> tagList = postQueryRequest.getTags();
-        Long userId = postQueryRequest.getUserId();
-        Long notId = postQueryRequest.getNotId();
+        String searchText = questionQueryRequest.getSearchText();
+        String sortField = questionQueryRequest.getSortField();
+        String sortOrder = questionQueryRequest.getSortOrder();
+        Long id = questionQueryRequest.getId();
+        String title = questionQueryRequest.getTitle();
+        String content = questionQueryRequest.getContent();
+        List<String> tagList = questionQueryRequest.getTags();
+        Long userId = questionQueryRequest.getUserId();
+        Long notId = questionQueryRequest.getNotId();
         // 拼接查询条件
         if (StringUtils.isNotBlank(searchText)) {
             queryWrapper.and(qw -> qw.like("title", searchText).or().like("content", searchText));
@@ -130,20 +125,20 @@ public class PostServiceImpl extends ServiceImpl<PostMapper, Post> implements Po
     }
 
     @Override
-    public Page<Post> searchFromEs(QuestionQueryRequest postQueryRequest) {
-        Long id = postQueryRequest.getId();
-        Long notId = postQueryRequest.getNotId();
-        String searchText = postQueryRequest.getSearchText();
-        String title = postQueryRequest.getTitle();
-        String content = postQueryRequest.getContent();
-        List<String> tagList = postQueryRequest.getTags();
-        List<String> orTagList = postQueryRequest.getOrTags();
-        Long userId = postQueryRequest.getUserId();
+    public Page<Question> searchFromEs(QuestionQueryRequest questionQueryRequest) {
+        Long id = questionQueryRequest.getId();
+        Long notId = questionQueryRequest.getNotId();
+        String searchText = questionQueryRequest.getSearchText();
+        String title = questionQueryRequest.getTitle();
+        String content = questionQueryRequest.getContent();
+        List<String> tagList = questionQueryRequest.getTags();
+        List<String> orTagList = questionQueryRequest.getOrTags();
+        Long userId = questionQueryRequest.getUserId();
         // es 起始页为 0
-        long current = postQueryRequest.getCurrent() - 1;
-        long pageSize = postQueryRequest.getPageSize();
-        String sortField = postQueryRequest.getSortField();
-        String sortOrder = postQueryRequest.getSortOrder();
+        long current = questionQueryRequest.getCurrent() - 1;
+        long pageSize = questionQueryRequest.getPageSize();
+        String sortField = questionQueryRequest.getSortField();
+        String sortOrder = questionQueryRequest.getSortOrder();
         BoolQueryBuilder boolQueryBuilder = QueryBuilders.boolQuery();
         // 过滤
         boolQueryBuilder.filter(QueryBuilders.termQuery("isDelete", 0));
@@ -199,25 +194,25 @@ public class PostServiceImpl extends ServiceImpl<PostMapper, Post> implements Po
         // 构造查询
         NativeSearchQuery searchQuery = new NativeSearchQueryBuilder().withQuery(boolQueryBuilder)
                 .withPageable(pageRequest).withSorts(sortBuilder).build();
-        SearchHits<PostEsDTO> searchHits = elasticsearchRestTemplate.search(searchQuery, PostEsDTO.class);
-        Page<Post> page = new Page<>();
+        SearchHits<QuestionEsDTO> searchHits = elasticsearchRestTemplate.search(searchQuery, QuestionEsDTO.class);
+        Page<Question> page = new Page<>();
         page.setTotal(searchHits.getTotalHits());
-        List<Post> resourceList = new ArrayList<>();
+        List<Question> resourceList = new ArrayList<>();
         // 查出结果后，从 db 获取最新动态数据（比如点赞数）
         if (searchHits.hasSearchHits()) {
-            List<SearchHit<PostEsDTO>> searchHitList = searchHits.getSearchHits();
-            List<Long> postIdList = searchHitList.stream().map(searchHit -> searchHit.getContent().getId())
+            List<SearchHit<QuestionEsDTO>> searchHitList = searchHits.getSearchHits();
+            List<Long> questionIdList = searchHitList.stream().map(searchHit -> searchHit.getContent().getId())
                     .collect(Collectors.toList());
-            List<Post> postList = baseMapper.selectBatchIds(postIdList);
-            if (postList != null) {
-                Map<Long, List<Post>> idPostMap = postList.stream().collect(Collectors.groupingBy(Post::getId));
-                postIdList.forEach(postId -> {
-                    if (idPostMap.containsKey(postId)) {
-                        resourceList.add(idPostMap.get(postId).get(0));
+            List<Question> questionList = baseMapper.selectBatchIds(questionIdList);
+            if (questionList != null) {
+                Map<Long, List<Question>> idQuestionMap = questionList.stream().collect(Collectors.groupingBy(Question::getId));
+                questionIdList.forEach(questionId -> {
+                    if (idQuestionMap.containsKey(questionId)) {
+                        resourceList.add(idQuestionMap.get(questionId).get(0));
                     } else {
                         // 从 es 清空 db 已物理删除的数据
-                        String delete = elasticsearchRestTemplate.delete(String.valueOf(postId), PostEsDTO.class);
-                        log.info("delete post {}", delete);
+                        String delete = elasticsearchRestTemplate.delete(String.valueOf(questionId), QuestionEsDTO.class);
+                        log.info("delete question {}", delete);
                     }
                 });
             }
@@ -227,85 +222,86 @@ public class PostServiceImpl extends ServiceImpl<PostMapper, Post> implements Po
     }
 
     @Override
-    public PostVO getPostVO(Post post, HttpServletRequest request) {
-        PostVO postVO = PostVO.objToVo(post);
-        long postId = post.getId();
+    public QuestionVO getQuestionVO(Question question, HttpServletRequest request) {
+        QuestionVO questionVO = QuestionVO.objToVo(question);
+        long questionId = question.getId();
         // 1. 关联查询用户信息
-        Long userId = post.getUserId();
+        Long userId = question.getUserId();
         User user = null;
         if (userId != null && userId > 0) {
             user = userService.getById(userId);
         }
         UserVO userVO = userService.getUserVO(user);
-        postVO.setUser(userVO);
+        questionVO.setUser(userVO);
         // 2. 已登录，获取用户点赞、收藏状态
         User loginUser = userService.getLoginUserPermitNull(request);
         if (loginUser != null) {
             // 获取点赞
-            QueryWrapper<PostThumb> postThumbQueryWrapper = new QueryWrapper<>();
-            postThumbQueryWrapper.in("postId", postId);
-            postThumbQueryWrapper.eq("userId", loginUser.getId());
-            PostThumb postThumb = postThumbMapper.selectOne(postThumbQueryWrapper);
-            postVO.setHasThumb(postThumb != null);
+            QueryWrapper<QuestionThumb> questionThumbQueryWrapper = new QueryWrapper<>();
+            questionThumbQueryWrapper.in("questionId", questionId);
+            questionThumbQueryWrapper.eq("userId", loginUser.getId());
+            QuestionThumb questionThumb = questionThumbMapper.selectOne(questionThumbQueryWrapper);
+            questionVO.setHasThumb(questionThumb != null);
             // 获取收藏
-            QueryWrapper<PostFavour> postFavourQueryWrapper = new QueryWrapper<>();
-            postFavourQueryWrapper.in("postId", postId);
-            postFavourQueryWrapper.eq("userId", loginUser.getId());
-            PostFavour postFavour = postFavourMapper.selectOne(postFavourQueryWrapper);
-            postVO.setHasFavour(postFavour != null);
+            QueryWrapper<QuestionFavour> questionFavourQueryWrapper = new QueryWrapper<>();
+            questionFavourQueryWrapper.in("questionId", questionId);
+            questionFavourQueryWrapper.eq("userId", loginUser.getId());
+            QuestionFavour questionFavour = questionFavourMapper.selectOne(questionFavourQueryWrapper);
+            questionVO.setHasFavour(questionFavour != null);
         }
-        return postVO;
+        return questionVO;
     }
 
     @Override
-    public Page<PostVO> getPostVOPage(Page<Post> postPage, HttpServletRequest request) {
-        List<Post> postList = postPage.getRecords();
-        Page<PostVO> postVOPage = new Page<>(postPage.getCurrent(), postPage.getSize(), postPage.getTotal());
-        if (CollUtil.isEmpty(postList)) {
-            return postVOPage;
+    public Page<QuestionVO> getQuestionVOPage(Page<Question> questionPage, HttpServletRequest request) {
+        List<Question> questionList = questionPage.getRecords();
+        Page<QuestionVO> questionVOPage = new Page<>(questionPage.getCurrent(), questionPage.getSize(), questionPage.getTotal());
+        if (CollUtil.isEmpty(questionList)) {
+            return questionVOPage;
         }
         // 1. 关联查询用户信息
-        Set<Long> userIdSet = postList.stream().map(Post::getUserId).collect(Collectors.toSet());
+        Set<Long> userIdSet = questionList.stream().map(Question::getUserId).collect(Collectors.toSet());
         Map<Long, List<User>> userIdUserListMap = userService.listByIds(userIdSet).stream()
                 .collect(Collectors.groupingBy(User::getId));
         // 2. 已登录，获取用户点赞、收藏状态
-        Map<Long, Boolean> postIdHasThumbMap = new HashMap<>();
-        Map<Long, Boolean> postIdHasFavourMap = new HashMap<>();
+        Map<Long, Boolean> questionIdHasThumbMap = new HashMap<>();
+        Map<Long, Boolean> questionIdHasFavourMap = new HashMap<>();
         User loginUser = userService.getLoginUserPermitNull(request);
         if (loginUser != null) {
-            Set<Long> postIdSet = postList.stream().map(Post::getId).collect(Collectors.toSet());
+            Set<Long> questionIdSet = questionList.stream().map(Question::getId).collect(Collectors.toSet());
             loginUser = userService.getLoginUser(request);
             // 获取点赞
-            QueryWrapper<PostThumb> postThumbQueryWrapper = new QueryWrapper<>();
-            postThumbQueryWrapper.in("postId", postIdSet);
-            postThumbQueryWrapper.eq("userId", loginUser.getId());
-            List<PostThumb> postPostThumbList = postThumbMapper.selectList(postThumbQueryWrapper);
-            postPostThumbList.forEach(postPostThumb -> postIdHasThumbMap.put(postPostThumb.getPostId(), true));
+            QueryWrapper<QuestionThumb> questionThumbQueryWrapper = new QueryWrapper<>();
+            questionThumbQueryWrapper.in("questionId", questionIdSet);
+            questionThumbQueryWrapper.eq("userId", loginUser.getId());
+            List<QuestionThumb> questionQuestionThumbList = questionThumbMapper.selectList(questionThumbQueryWrapper);
+            questionQuestionThumbList.forEach(questionQuestionThumb -> questionIdHasThumbMap.put(questionQuestionThumb.getQuestionId(), true));
             // 获取收藏
-            QueryWrapper<PostFavour> postFavourQueryWrapper = new QueryWrapper<>();
-            postFavourQueryWrapper.in("postId", postIdSet);
-            postFavourQueryWrapper.eq("userId", loginUser.getId());
-            List<PostFavour> postFavourList = postFavourMapper.selectList(postFavourQueryWrapper);
-            postFavourList.forEach(postFavour -> postIdHasFavourMap.put(postFavour.getPostId(), true));
+            QueryWrapper<QuestionFavour> questionFavourQueryWrapper = new QueryWrapper<>();
+            questionFavourQueryWrapper.in("questionId", questionIdSet);
+            questionFavourQueryWrapper.eq("userId", loginUser.getId());
+            List<QuestionFavour> questionFavourList = questionFavourMapper.selectList(questionFavourQueryWrapper);
+            questionFavourList.forEach(questionFavour -> questionIdHasFavourMap.put(questionFavour.getQuestionId(), true));
         }
         // 填充信息
-        List<PostVO> postVOList = postList.stream().map(post -> {
-            PostVO postVO = PostVO.objToVo(post);
-            Long userId = post.getUserId();
+        List<QuestionVO> questionVOList = questionList.stream().map(question -> {
+            QuestionVO questionVO = QuestionVO.objToVo(question);
+            Long userId = question.getUserId();
             User user = null;
             if (userIdUserListMap.containsKey(userId)) {
                 user = userIdUserListMap.get(userId).get(0);
             }
-            postVO.setUser(userService.getUserVO(user));
-            postVO.setHasThumb(postIdHasThumbMap.getOrDefault(post.getId(), false));
-            postVO.setHasFavour(postIdHasFavourMap.getOrDefault(post.getId(), false));
-            return postVO;
+            questionVO.setUser(userService.getUserVO(user));
+            questionVO.setHasThumb(questionIdHasThumbMap.getOrDefault(question.getId(), false));
+            questionVO.setHasFavour(questionIdHasFavourMap.getOrDefault(question.getId(), false));
+            return questionVO;
         }).collect(Collectors.toList());
-        postVOPage.setRecords(postVOList);
-        return postVOPage;
+        questionVOPage.setRecords(questionVOList);
+        return questionVOPage;
     }
 
 }
+
 
 
 

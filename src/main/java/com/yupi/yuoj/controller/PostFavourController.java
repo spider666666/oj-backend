@@ -6,7 +6,7 @@ import com.yupi.yuoj.common.ErrorCode;
 import com.yupi.yuoj.common.ResultUtils;
 import com.yupi.yuoj.exception.BusinessException;
 import com.yupi.yuoj.exception.ThrowUtils;
-import com.yupi.yuoj.model.dto.post.PostQueryRequest;
+import com.yupi.yuoj.model.dto.question.QuestionQueryRequest;
 import com.yupi.yuoj.model.dto.postfavour.PostFavourAddRequest;
 import com.yupi.yuoj.model.dto.postfavour.PostFavourQueryRequest;
 import com.yupi.yuoj.model.entity.Post;
@@ -70,7 +70,7 @@ public class PostFavourController {
      * @param request
      */
     @PostMapping("/my/list/page")
-    public BaseResponse<Page<PostVO>> listMyFavourPostByPage(@RequestBody PostQueryRequest postQueryRequest,
+    public BaseResponse<Page<PostVO>> listMyFavourPostByPage(@RequestBody QuestionQueryRequest postQueryRequest,
             HttpServletRequest request) {
         if (postQueryRequest == null) {
             throw new BusinessException(ErrorCode.PARAMS_ERROR);
