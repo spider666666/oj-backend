@@ -10,10 +10,7 @@ import com.yupi.yuoj.common.ResultUtils;
 import com.yupi.yuoj.constant.UserConstant;
 import com.yupi.yuoj.exception.BusinessException;
 import com.yupi.yuoj.exception.ThrowUtils;
-import com.yupi.yuoj.model.dto.question.QuestionAddRequest;
-import com.yupi.yuoj.model.dto.question.QuestionEditRequest;
-import com.yupi.yuoj.model.dto.question.QuestionQueryRequest;
-import com.yupi.yuoj.model.dto.question.QuestionUpdateRequest;
+import com.yupi.yuoj.model.dto.question.*;
 import com.yupi.yuoj.model.entity.Question;
 import com.yupi.yuoj.model.entity.User;
 import com.yupi.yuoj.model.vo.QuestionVO;
@@ -116,6 +113,18 @@ public class QuestionController {
         if (tags != null) {
             question.setTags(JSONUtil.toJsonStr(tags));
         }
+        //获取需要更新的参数
+        List<JudgeCase> judgeCases = questionUpdateRequest.getJudgeCase();
+        JudgeConfig judgeConfig = questionUpdateRequest.getJudgeConfig();
+
+        //判断是否为空，如果不是空，则进行更新
+        if(judgeCases != null){
+            question.setJudgeCase(JSONUtil.toJsonStr(judgeCases));
+        }
+        if(judgeConfig != null){
+            question.setJudgeConfig(JSONUtil.toJsonStr(judgeConfig));
+        }
+
         // 参数校验
         questionService.validQuestion(question, false);
         long id = questionUpdateRequest.getId();
@@ -221,6 +230,18 @@ public class QuestionController {
         if (tags != null) {
             question.setTags(JSONUtil.toJsonStr(tags));
         }
+        //获取需要更新的参数
+        List<JudgeCase> judgeCases = questionEditRequest.getJudgeCase();
+        JudgeConfig judgeConfig = questionEditRequest.getJudgeConfig();
+
+        //判断是否为空，如果不是空，则进行更新
+        if(judgeCases != null){
+            question.setJudgeCase(JSONUtil.toJsonStr(judgeCases));
+        }
+        if(judgeConfig != null){
+            question.setJudgeConfig(JSONUtil.toJsonStr(judgeConfig));
+        }
+
         // 参数校验
         questionService.validQuestion(question, false);
         User loginUser = userService.getLoginUser(request);
