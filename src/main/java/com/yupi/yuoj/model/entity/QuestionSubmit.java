@@ -15,7 +15,7 @@ import java.util.Date;
 @Data
 public class QuestionSubmit {
     /**
-     * id
+     * id ,添加注解可以实现id的自动回显
      */
     @TableId(type = IdType.AUTO)
     private Long id;

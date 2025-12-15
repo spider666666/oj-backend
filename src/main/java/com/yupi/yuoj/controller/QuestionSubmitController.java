@@ -4,9 +4,9 @@ import com.yupi.yuoj.common.BaseResponse;
 import com.yupi.yuoj.common.ErrorCode;
 import com.yupi.yuoj.common.ResultUtils;
 import com.yupi.yuoj.exception.BusinessException;
-import com.yupi.yuoj.model.dto.questionthumb.QuestionThumbAddRequest;
+import com.yupi.yuoj.model.dto.questionsubmit.QuestionSubmitAddRequest;
 import com.yupi.yuoj.model.entity.User;
-import com.yupi.yuoj.service.QuestionThumbService;
+import com.yupi.yuoj.service.QuestionSubmitService;
 import com.yupi.yuoj.service.UserService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -18,39 +18,40 @@ import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;
 
 /**
- * 帖子点赞接口
+ * 题目提交接口
  *
  * @author <a href="https://github.com/liyupi">程序员鱼皮</a>
  * @from <a href="https://yupi.icu">编程导航知识星球</a>
  */
 @RestController
-@RequestMapping("/question_thumb")
+@RequestMapping("/question_submit")
 @Slf4j
 public class QuestionSubmitController {
 
     @Resource
-    private QuestionThumbService questionThumbService;
+    private QuestionSubmitService questionSubmitService;
 
     @Resource
     private UserService userService;
 
     /**
-     * 点赞 / 取消点赞
+     * 提交 / 取消提交
      *
-     * @param questionThumbAddRequest
+     * @param questionSubmitAddRequest
      * @param request
-     * @return resultNum 本次点赞变化数
+     * @return resultNum 本次提交变化数
      */
     @PostMapping("/")
-    public BaseResponse<Integer> doThumb(@RequestBody QuestionThumbAddRequest questionThumbAddRequest,
+    public BaseResponse<Long> doSubmit(@RequestBody QuestionSubmitAddRequest questionSubmitAddRequest,
             HttpServletRequest request) {
-        if (questionThumbAddRequest == null || questionThumbAddRequest.getQuestionId() <= 0) {
+        if (questionSubmitAddRequest == null || questionSubmitAddRequest.getQuestionId() <= 0) {
             throw new BusinessException(ErrorCode.PARAMS_ERROR);
         }
-        // 登录才能点赞
+        // 登录才能提交
         final User loginUser = userService.getLoginUser(request);
-        long questionId = questionThumbAddRequest.getQuestionId();
-        int result = questionThumbService.doQuestionThumb(questionId, loginUser);
+        long questionId = questionSubmitAddRequest.getQuestionId();
+        // 调用方法进行题目的提交
+        Long result = questionSubmitService.doQuestionSubmit(questionId, loginUser);
         return ResultUtils.success(result);
     }
 

@@ -1,7 +1,7 @@
 package com.yupi.yuoj.mapper;
 
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
-import generator.domain.QuestionSubmit;
+import com.yupi.yuoj.model.entity.QuestionSubmit;
 
 /**
 * @author Administrator

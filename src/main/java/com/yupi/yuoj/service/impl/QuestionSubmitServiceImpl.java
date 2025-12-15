@@ -1,10 +1,17 @@
 package com.yupi.yuoj.service.impl;
 
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
-import generator.domain.QuestionSubmit;
-import generator.mapper.QuestionSubmitMapper;
-import generator.service.QuestionSubmitService;
+import com.yupi.yuoj.common.ErrorCode;
+import com.yupi.yuoj.exception.BusinessException;
+import com.yupi.yuoj.mapper.QuestionSubmitMapper;
+import com.yupi.yuoj.model.entity.QuestionSubmit;
+import com.yupi.yuoj.model.entity.Question;
+import com.yupi.yuoj.model.entity.User;
+import com.yupi.yuoj.service.QuestionService;
+import com.yupi.yuoj.service.QuestionSubmitService;
 import org.springframework.stereotype.Service;
+
+import javax.annotation.Resource;
 
 /**
 * @author Administrator
@@ -13,7 +20,44 @@ import org.springframework.stereotype.Service;
 */
 @Service
 public class QuestionSubmitServiceImpl extends ServiceImpl<QuestionSubmitMapper, QuestionSubmit>
-    implements QuestionSubmitService{
+    implements QuestionSubmitService {
+
+    @Resource
+    private QuestionService questionService;
+
+    /**
+     * 提交
+     *
+     * @param questionId
+     * @param loginUser
+     * @return
+     */
+    @Override
+    public Long doQuestionSubmit(long questionId, User loginUser) {
+        // 判断实体是否存在，根据类别获取实体
+        Question question = questionService.getById(questionId);
+        if (question == null) {
+            throw new BusinessException(ErrorCode.NOT_FOUND_ERROR);
+        }
+        // 获取当前用户登入的id
+        long userId = loginUser.getId();
+        // 每个用户串行提交todo后期可能会加锁或者进行限流处理，防止用户多次提交或者恶意提交
+        // 根据传入的请求参数封装需要保存的信息
+        QuestionSubmit questionSubmit = new QuestionSubmit();
+        questionSubmit.setUserId(userId);
+        questionSubmit.setQuestionId(questionId);
+        questionSubmit.setCode(questionSubmit.getCode());
+        questionSubmit.setLanguage(questionSubmit.getLanguage());
+        // 对于一些其他字段设置初始值，在后续判题的方法可能会对字段进行变化
+        questionSubmit.setStatus(0);
+        questionSubmit.setJudgeInfo("{}");
+        boolean save = this.save(questionSubmit);
+        if(!save){
+            throw new BusinessException(ErrorCode.SYSTEM_ERROR,"数据插入失败");
+        }
+        //具体返回值，一般对于插入数据而言，最好返回当前记录的id
+        return questionSubmit.getId();
+    }
 
 }
 
