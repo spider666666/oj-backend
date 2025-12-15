@@ -1,6 +1,7 @@
 package com.yupi.yuoj.service;
 
 import com.baomidou.mybatisplus.extension.service.IService;
+import com.yupi.yuoj.model.dto.questionsubmit.QuestionSubmitAddRequest;
 import com.yupi.yuoj.model.entity.QuestionSubmit;
 import com.yupi.yuoj.model.entity.User;
 
@@ -12,6 +13,6 @@ import com.yupi.yuoj.model.entity.User;
 public interface QuestionSubmitService extends IService<QuestionSubmit> {
 
 
-    Long doQuestionSubmit(long questionId, User loginUser);
+    Long doQuestionSubmit(QuestionSubmitAddRequest questionSubmitAddRequest, User loginUser);
 
 }

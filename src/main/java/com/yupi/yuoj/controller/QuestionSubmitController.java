@@ -6,6 +6,7 @@ import com.yupi.yuoj.common.ResultUtils;
 import com.yupi.yuoj.exception.BusinessException;
 import com.yupi.yuoj.model.dto.questionsubmit.QuestionSubmitAddRequest;
 import com.yupi.yuoj.model.entity.User;
+import com.yupi.yuoj.model.enums.LanguageEnum;
 import com.yupi.yuoj.service.QuestionSubmitService;
 import com.yupi.yuoj.service.UserService;
 import lombok.extern.slf4j.Slf4j;
@@ -47,11 +48,10 @@ public class QuestionSubmitController {
         if (questionSubmitAddRequest == null || questionSubmitAddRequest.getQuestionId() <= 0) {
             throw new BusinessException(ErrorCode.PARAMS_ERROR);
         }
-        // 登录才能提交
+        // 登录才能提交，其实获取用户登入信息的操作可以在service层进行
         final User loginUser = userService.getLoginUser(request);
-        long questionId = questionSubmitAddRequest.getQuestionId();
         // 调用方法进行题目的提交
-        Long result = questionSubmitService.doQuestionSubmit(questionId, loginUser);
+        Long result = questionSubmitService.doQuestionSubmit(questionSubmitAddRequest, loginUser);
         return ResultUtils.success(result);
     }
 
