@@ -56,8 +56,8 @@ public class QuestionSubmitServiceImpl extends ServiceImpl<QuestionSubmitMapper,
         QuestionSubmit questionSubmit = new QuestionSubmit();
         questionSubmit.setUserId(userId);
         questionSubmit.setQuestionId(questionId);
-        questionSubmit.setCode(questionSubmit.getCode());
-        questionSubmit.setLanguage(questionSubmit.getLanguage());
+        questionSubmit.setCode(questionSubmitAddRequest.getCode());
+        questionSubmit.setLanguage(questionSubmitAddRequest.getLanguage());
         // 对于一些其他字段设置初始值，在后续判题的方法可能会对字段进行变化
         questionSubmit.setStatus(0);
         questionSubmit.setJudgeInfo("{}");
