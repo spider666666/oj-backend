@@ -3,6 +3,8 @@ package com.yupi.yuoj.model.entity;
 import com.baomidou.mybatisplus.annotation.IdType;
 import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableName;
+import com.yupi.yuoj.model.vo.QuestionVO;
+import com.yupi.yuoj.model.vo.UserVO;
 import lombok.Data;
 
 import java.util.Date;
@@ -59,4 +61,6 @@ public class QuestionSubmit {
      * 更新时间
      */
     private Date updateTime;
+
+
 }
