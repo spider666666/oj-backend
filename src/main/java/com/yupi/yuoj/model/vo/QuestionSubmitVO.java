@@ -6,12 +6,13 @@ import com.yupi.yuoj.model.entity.QuestionSubmit;
 import lombok.Data;
 import org.springframework.beans.BeanUtils;
 
+import java.io.Serializable;
 import java.util.Date;
 
 
 //目前没有什么好的想法，先都全部返回算了
 @Data
-public class QuestionSubmitVO {
+public class QuestionSubmitVO implements Serializable {
     /**
      * id ,添加注解可以实现id的自动回显,可能需要进行编辑或者查看功能
      */
