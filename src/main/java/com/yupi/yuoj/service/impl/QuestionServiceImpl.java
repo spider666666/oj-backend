@@ -97,6 +97,10 @@ public class QuestionServiceImpl extends ServiceImpl<QuestionMapper, Question>
         String content = questionQueryRequest.getContent();
         List<String> tagList = questionQueryRequest.getTags();
         //查询条件
+        if(id != null){
+            queryWrapper.eq("id",id);
+        }
+        System.out.println("title = " + title);
         queryWrapper.like(StringUtils.isNotBlank(title), "title", title);
         queryWrapper.like(StringUtils.isNotBlank(content), "content", content);
         if (CollUtil.isNotEmpty(tagList)) {
