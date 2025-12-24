@@ -6,6 +6,8 @@ import com.baomidou.mybatisplus.extension.service.IService;
 import com.yupi.yuoj.model.dto.question.QuestionQueryRequest;
 import com.yupi.yuoj.model.entity.Question;
 import com.yupi.yuoj.model.vo.QuestionVO;
+import org.springframework.stereotype.Service;
+
 import javax.servlet.http.HttpServletRequest;
 
 /**
@@ -13,6 +15,7 @@ import javax.servlet.http.HttpServletRequest;
 * @description 针对表【question(题目)】的数据库操作Service
 * @createDate 2025-12-15 02:05:21
 */
+@Service
 public interface QuestionService extends IService<Question> {
     /**
      * 校验

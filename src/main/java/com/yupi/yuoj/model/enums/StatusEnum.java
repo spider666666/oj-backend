@@ -1,5 +1,6 @@
 package com.yupi.yuoj.model.enums;
 
+import lombok.Getter;
 import org.apache.commons.lang3.ObjectUtils;
 
 import java.util.Arrays;
@@ -22,6 +23,7 @@ public enum StatusEnum {
 
     private final String text;
 
+    @Getter
     private final Integer value;
 
     StatusEnum(String text, Integer value) {

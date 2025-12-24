@@ -9,6 +9,7 @@ import com.yupi.yuoj.model.vo.UserVO;
 import java.util.List;
 import javax.servlet.http.HttpServletRequest;
 import me.chanjar.weixin.common.bean.WxOAuth2UserInfo;
+import org.springframework.stereotype.Service;
 
 /**
  * 用户服务
@@ -16,6 +17,7 @@ import me.chanjar.weixin.common.bean.WxOAuth2UserInfo;
  * @author <a href="https://github.com/liyupi">程序员鱼皮</a>
  * @from <a href="https://yupi.icu">编程导航知识星球</a>
  */
+@Service
 public interface UserService extends IService<User> {
 
     /**

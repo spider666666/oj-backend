@@ -7,6 +7,7 @@ import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.yupi.yuoj.common.ErrorCode;
 import com.yupi.yuoj.constant.CommonConstant;
 import com.yupi.yuoj.exception.BusinessException;
+import com.yupi.yuoj.job.codesand.service.JudgeService;
 import com.yupi.yuoj.mapper.QuestionSubmitMapper;
 import com.yupi.yuoj.model.dto.questionsubmit.QuestionSubmitAddRequest;
 import com.yupi.yuoj.model.dto.questionsubmit.QuestionSubmitQueryRequest;
@@ -21,6 +22,7 @@ import com.yupi.yuoj.service.QuestionSubmitService;
 import com.yupi.yuoj.service.UserService;
 import com.yupi.yuoj.utils.SqlUtils;
 import org.apache.commons.lang3.StringUtils;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
 import javax.annotation.Resource;
 import java.util.*;
@@ -40,6 +42,10 @@ public class QuestionSubmitServiceImpl extends ServiceImpl<QuestionSubmitMapper,
 
     @Resource
     private UserService userService;
+
+    @Resource
+    @Lazy
+    private JudgeService judgeService;
 
 
     /**
@@ -80,6 +86,10 @@ public class QuestionSubmitServiceImpl extends ServiceImpl<QuestionSubmitMapper,
         if(!save){
             throw new BusinessException(ErrorCode.SYSTEM_ERROR,"数据插入失败");
         }
+
+        //todo 添加判题逻辑
+        QuestionSubmit questionSubmit1 = judgeService.doJudge(questionSubmit.getId());
+        System.out.println("代码沙箱判题结果为:" + questionSubmit1.getJudgeInfo());
         //具体返回值，一般对于插入数据而言，最好返回当前记录的id
         return questionSubmit.getId();
     }

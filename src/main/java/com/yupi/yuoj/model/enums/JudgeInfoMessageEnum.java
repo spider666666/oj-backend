@@ -1,5 +1,7 @@
 package com.yupi.yuoj.model.enums;
 
+import lombok.Data;
+import lombok.Getter;
 import org.apache.commons.lang3.ObjectUtils;
 
 import java.util.Arrays;
@@ -12,11 +14,10 @@ import java.util.stream.Collectors;
  * @author <a href="https://github.com/liyupi">程序员鱼皮</a>
  * @from <a href="https://yupi.icu">编程导航知识星球</a>
  */
-
 public enum JudgeInfoMessageEnum {
 
-    WAITING("waiting","待判题"),
-    RUNNING("running","判题中"),
+    WAITING("waiting", "0"),
+    RUNNING("running", "1"),
     SUCCESS("success","运行成功"),
     FAILED("failed","运行失败"),
     MEMORYLIMIT("memoryLimit","内存溢出"),
@@ -25,6 +26,8 @@ public enum JudgeInfoMessageEnum {
 
     private final String text;
 
+    //获取单个判题信息的value
+    @Getter
     private final String value;
 
     JudgeInfoMessageEnum(String text, String value) {
@@ -58,5 +61,4 @@ public enum JudgeInfoMessageEnum {
         }
         return null;
     }
-
 }

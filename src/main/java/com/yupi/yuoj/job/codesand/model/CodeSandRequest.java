@@ -5,6 +5,8 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.util.List;
+
 @Data
 @Builder
 @AllArgsConstructor
@@ -19,7 +21,7 @@ public class CodeSandRequest {
     //语言
     private String language;
 
-    //题目的id
-    private long questionId;
+    //判题用例
+    private List<String> inputList;
 
 }

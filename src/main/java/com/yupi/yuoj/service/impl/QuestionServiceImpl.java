@@ -18,7 +18,6 @@ import com.yupi.yuoj.service.QuestionService;
 import com.yupi.yuoj.service.UserService;
 import com.yupi.yuoj.utils.SqlUtils;
 import org.apache.commons.lang3.StringUtils;
-import org.springframework.data.elasticsearch.core.ElasticsearchRestTemplate;
 import org.springframework.stereotype.Service;
 import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;

@@ -6,10 +6,18 @@ import com.yupi.yuoj.job.codesand.factory.CodeSandFactory;
 import com.yupi.yuoj.job.codesand.imp.ExampleCodeSand;
 import com.yupi.yuoj.job.codesand.model.CodeSandRequest;
 import com.yupi.yuoj.job.codesand.model.CodeSandResponse;
+import com.yupi.yuoj.job.codesand.service.JudgeService;
+import com.yupi.yuoj.job.codesand.service.JudgeServiceImp;
+import com.yupi.yuoj.model.entity.QuestionSubmit;
+import com.yupi.yuoj.model.vo.QuestionSubmitVO;
 import org.junit.jupiter.api.Test;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.util.DigestUtils;
+
+import javax.servlet.ServletRequest;
+import javax.servlet.http.HttpServletRequest;
 
 /**
  * 主类测试
@@ -19,6 +27,9 @@ import org.springframework.util.DigestUtils;
  */
 @SpringBootTest
 class MainApplicationTests {
+
+    @Autowired
+    private ServletRequest httpServletRequest;
 
     @Test
     void contextLoads() {
@@ -50,5 +61,4 @@ class MainApplicationTests {
         CodeSandResponse response = codeSandProxy.executeCode(request);
         System.out.println("response = " + response);
     }
-
 }

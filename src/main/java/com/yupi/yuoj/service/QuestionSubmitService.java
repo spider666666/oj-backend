@@ -11,6 +11,7 @@ import com.yupi.yuoj.model.entity.QuestionSubmit;
 import com.yupi.yuoj.model.entity.User;
 import com.yupi.yuoj.model.vo.QuestionSubmitVO;
 import com.yupi.yuoj.model.vo.QuestionVO;
+import org.springframework.stereotype.Service;
 import org.springframework.web.bind.annotation.RequestBody;
 
 import javax.servlet.http.HttpServletRequest;
@@ -21,6 +22,7 @@ import java.util.List;
 * @description 针对表【question_submit(题目提交)】的数据库操作Service
 * @createDate 2025-12-15 02:05:21
 */
+@Service
 public interface QuestionSubmitService extends IService<QuestionSubmit> {
 
 
